@@ -26,14 +26,11 @@ st.write('Creado por [Sandreke](https://linktr.ee/sandreke99) en este [tutorial]
 # ### Paso 1: Definir funciones necesarias
 ##########################################
 
-# Patron regex para identificar el comienzo de cada línea del txt con la fecha y la hora
-def IniciaConFechaYHora(s):
-    # Ejemplo: '9/16/23, 5:59 PM - ...'
-    patron = '^([1-9]|1[0-2])(\/)([1-9]|1[0-9]|2[0-9]|3[0-1])(\/)(2[0-9]), ([0-9]+):([0-9][0-9])\s?([AP][M]) -'
-    resultado = re.match(patron, s)  # Verificar si cada línea del txt hace match con el patrón de fecha y hora
-    if resultado:
-        return True
-    return False
+# Patron regex para identificar el comienzo de cada línea del txt con la fecha y la horadef arranque(s):
+def arranque(s):
+    patron = r"(\d{1,2}/\d{2}/\d{2}, \d{1,2}:\d{2} [AP][M] - .+?)(?=\s+\d{1,2}/\d{2}/\d{2}, \d{1,2}:\d{2} [AP][M] - |\Z)"
+    resultado = re.findall(patron, s)  # Verificar si cada línea del txt hace match con el patrón de fecha y hora
+    return resultado
 
 # Patrón para encontrar a los miembros del grupo dentro del txt
 
@@ -46,19 +43,19 @@ def EncontrarMiembro(s):
 
 # Separar las partes de cada línea del txt: Fecha, Hora, Miembro y Mensaje
 def ObtenerPartes(linea):
-    # Ejemplo: '9/16/23, 5:59 PM - Sandreke: Todos debemos aprender a analizar datos'
+    # Ejemplo: '10/05/23, 9:06 AM - Valeria 💗: Holaaa Yoseth, cómo vas?'
     splitLinea = linea.split(' - ')
-    FechaHora = splitLinea[0]                     # '9/16/23, 5:59 PM'
+    FechaHora = splitLinea[0]                     # '10/05/23, 9:06 AM'
     splitFechaHora = FechaHora.split(', ')
-    Fecha = splitFechaHora[0]                    # '9/16/23'
-    Hora = ' '.join(splitFechaHora[1:])          # '5:59 PM'
+    Fecha = splitFechaHora[0]                    # '10/05/23'
+    Hora = ' '.join(splitFechaHora[1:])          # '9:06 AM'
     Mensaje = ' '.join(splitLinea[1:])             # 'Sandreke: Todos debemos aprender a analizar datos'
     if EncontrarMiembro(Mensaje):
         splitMensaje = Mensaje.split(': ')
-        Miembro = splitMensaje[0]               # 'Sandreke'
-        Mensaje = ' '.join(splitMensaje[1:])    # 'Todos debemos aprender a analizar datos'
+        Miembro = splitMensaje[0]               # 'Valeria 💗:'
+        Mensaje = ' '.join(splitMensaje[1:])    # 'Holaaa Yoseth, cómo vas?'
     else:
-        Miembro = None       
+        Miembro = None
     return Fecha, Hora, Miembro, Mensaje
 
 
@@ -76,27 +73,18 @@ with open(RutaChat, "r") as archivo:
 # 1era limpieza del contendio
 contenido=contenido.replace("\u202f"," ").replace("a. m.","AM").replace("p. m.", "PM").replace("Arciniegas B. Yoseth:","Yoseth 🐣:")
 contenido_limpio=contenido.replace("\n"," ")
+# SEPARAMOS CADA TEXT POR FECHAS, SACAMOS LAS DOS PRIMERAS LINEAS COMO TAMBIEN SACAMOS MENSAJES DE WPP
+mensajes_limpios=arranque(contenido_limpio)
+del mensajes_limpios[8778] # este es un mensaje de 'fijaste un mensaje'
+del mensajes_limpios[0:2]
+# OBTENEMOS LAS PARTES DE CADA UNO DE LOS MENSAJES LIMPIOS
+DatosLista=[]
+for elemento in mensajes_limpios:
+  DatosLista.append(ObtenerPartes(elemento))
 
-
-# Lista para almacenar los datos (Fecha, Hora, Miembro, Mensaje) de cada línea del txt
-DatosLista = []
-with open(RutaChat, encoding="utf-8") as fp:
-    fp.readline() # Eliminar primera fila relacionada al cifrado de extremo a extremo
-    Fecha, Hora, Miembro = None, None, None
-    while True:
-        linea = fp.readline()
-        if not linea:
-            break
-        linea = linea.strip()
-        if IniciaConFechaYHora(linea): # Si cada línea del txt coincide con el patrón fecha y hora
-            Fecha, Hora, Miembro, Mensaje = ObtenerPartes(linea) # Obtener datos de cada línea del txt
-            DatosLista.append([Fecha, Hora, Miembro, Mensaje])
-
-# Convertir la lista con los datos a dataframe
 df = pd.DataFrame(DatosLista, columns=['Fecha', 'Hora', 'Miembro', 'Mensaje'])
-
 # Cambiar la columna Fecha a formato datetime
-df['Fecha'] = pd.to_datetime(df['Fecha'], format="%m/%d/%y")
+df['Fecha'] = pd.to_datetime(df['Fecha'], format='%d/%m/%y',  errors='coerce').dt.strftime('%Y-%m-%d')
 
 # Eliminar los posibles campos vacíos del dataframe
 # y lo que no son mensajes como cambiar el asunto del grupo o agregar a alguien
@@ -105,18 +93,11 @@ df = df.dropna()
 # Resetear el índice
 df.reset_index(drop=True, inplace=True)
 
-# #### Filtrar el chat por fecha de acuerdo a lo requerido
-start_date = '2023-01-01'
-end_date = '2024-02-01'
-
-df = df[(df['Fecha'] >= start_date) & (df['Fecha'] <= end_date)]
-
-
 ##################################################################
 # ### Paso 3: Estadísticas de mensajes, multimedia, emojis y links
 ##################################################################
 
-# #### Total de mensajes, multimedia, emojis y links enviados
+# #### Total de mensajes, multimedia, emojis y links
 def ObtenerEmojis(Mensaje):
     emoji_lista = []
     data = regex.findall(r'\X', Mensaje)  # Obtener lista de caracteres de cada mensaje
@@ -129,7 +110,7 @@ def ObtenerEmojis(Mensaje):
 total_mensajes = df.shape[0]
 
 # Obtener la cantidad de archivos multimedia enviados
-multimedia_mensajes = df[df['Mensaje'] == '<Media omitted>'].shape[0]
+multimedia_mensajes = df[df['Mensaje'] == '<Multimedia omitido>'].shape[0]
 
 # Obtener la cantidad de emojis enviados
 df['Emojis'] = df['Mensaje'].apply(ObtenerEmojis) # Se agrega columna 'Emojis'
@@ -177,9 +158,8 @@ emoji_df = pd.DataFrame(emoji_diccionario, columns=['Emoji', 'Cantidad'])
 # Establecer la columna Emoji como índice
 emoji_df = emoji_df.set_index('Emoji').head(10)
 
-
 # Plotear el pie de los emojis más usados
-fig = px.pie(emoji_df, values='Cantidad', names=emoji_df.index, hole=.3, template='plotly_dark', color_discrete_sequence=px.colors.qualitative.Pastel2)
+fig = px.pie(emoji_df, values='Cantidad', names=emoji_df.index, hole=.3, template='plotly_dark', color_discrete_sequence=px.colors.qualitative.Pastel1)
 fig.update_traces(textposition='inside', textinfo='percent+label', textfont_size=20)
 
 # Ajustar el gráfico
@@ -190,6 +170,7 @@ fig.update_layout(
     #          'xanchor': 'center'}, font=dict(size=17),
     showlegend=False)
 # fig.show()
+
 
 
 ###################################
@@ -215,6 +196,8 @@ df_MiembrosActivos.reset_index(inplace=True)
 df_MiembrosActivos.index = np.arange(1, len(df_MiembrosActivos)+1)
 df_MiembrosActivos['% Mensaje'] = (df_MiembrosActivos['Mensaje'] / df_MiembrosActivos['Mensaje'].sum()) * 100
 
+
+
 ###################################
 ###################################
 with col2:
@@ -225,7 +208,7 @@ with col2:
 # #### Estadísticas por miembro
 
 # Separar mensajes (sin multimedia) y multimedia (stickers, fotos, videos)
-multimedia_df = df[df['Mensaje'] == '<Media omitted>']
+multimedia_df = df[df['Mensaje'] == '<Multimedia omitido>']
 mensajes_df = df.drop(multimedia_df.index)
 
 # Contar la cantidad de palabras y letras por mensaje
@@ -318,18 +301,26 @@ df['rangoHora'] = pd.to_datetime(df['Hora'], format='%I:%M %p')
 
 # Define a function to create the "Range Hour" column
 def create_range_hour(hour):
-    hour = pd.to_datetime(hour)
+    hour = pd.to_datetime(hour)  # Convertir a objeto de Python datetime si es necesario
     start_hour = hour.hour
     end_hour = (hour + pd.Timedelta(hours=1)).hour
     return f'{start_hour:02d} - {end_hour:02d} h'
 
 # # Apply the function to create the "Range Hour" column
 df['rangoHora'] = df['rangoHora'].apply(create_range_hour)
+df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
+# Obtener el nombre del día de la semana
 df['DiaSemana'] = df['Fecha'].dt.strftime('%A')
-mapeo_dias_espanol = {'Monday': '1 Lunes','Tuesday': '2 Martes','Wednesday': '3 Miércoles','Thursday': '4 Jueves',
-                      'Friday': '5 Viernes','Saturday': '6 Sábado','Sunday': '7 Domingo'}
+# Mapeo de los días a español
+mapeo_dias_espanol = {
+    'Monday': '1 Lunes', 'Tuesday': '2 Martes', 'Wednesday': '3 Miércoles',
+    'Thursday': '4 Jueves', 'Friday': '5 Viernes', 'Saturday': '6 Sábado',
+    'Sunday': '7 Domingo'
+}
+# Aplicar el mapeo
 df['DiaSemana'] = df['DiaSemana'].map(mapeo_dias_espanol)
-# df
+
+
 
 
 # #### Número de mensajes por rango de hora
