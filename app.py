@@ -31,7 +31,7 @@ fecha_actual = datetime.now().date()
 dias_transcurridos = (fecha_actual - fecha_inicial).days
 
 # Mostrar los resultados
-st.write(f"Felices **{dias_transcurridos} días** desde el 1 de noviembre de 2024. Te amo mucho Valeria 💗💗💗")
+st.write(f"Felices [**{dias_transcurridos} días**](https://www.youtube.com/watch?v=oQnvA564Y7A) desde el 1 de noviembre de 2024. Te amo mucho Valeria 💗💗💗")
 
 ##########################################
 # ### Paso 1: Definir funciones necesarias
