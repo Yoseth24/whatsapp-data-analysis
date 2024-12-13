@@ -19,6 +19,7 @@ import streamlit as st
 # Título de la aplicación
 st.title('Análisis de nuestro chat de WhatsApp Valeria Montaño 💗')
 st.write('Creado por [Yoseth](https://drive.google.com/file/d/1aKo1TG4AbKO7YBRsj6xRke5YKxkkRfYu/view?usp=sharing) para la novia más perfecta, hermosa y comprensiva del mundo, [Valeria](https://drive.google.com/file/d/1JXkucKKR48Gnok7IVz5aESi_AreSE43q/view?usp=sharing)')
+st.write('Valeria, eres una persona increíblemente fuerte y perseverante. Cuidadosa con tu familia, llena de empatía por los demás y con un corazón que ama de una manera única. Eres mi mayor fuente de inspiración y no hay palabras suficientes para expresar cuánto te adoro. Te amo profundamente y quiero estar a tu lado, tomando tu mano en cada logro y cada paso que des en esta vida.')
 ###################################
 ###################################
 
