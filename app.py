@@ -420,10 +420,10 @@ st.plotly_chart(fig)
 total_palabras = ' '
 stopwords = STOPWORDS.update(['que', 'qué', 'con', 'de', 'te', 'en', 'la', 'lo', 'le', 'el', 'las', 'los', 'les', 'por', 'es',
                               'son', 'se', 'para', 'un', 'una', 'chicos', 'su', 'si', 'chic','nos', 'ya', 'hay', 'esta',
-                              'pero', 'del', 'mas', 'más', 'eso', 'este', 'como', 'así', 'todo', 'https','Media','omitted',
-                              'y', 'mi', 'o', 'q', 'yo', 'al'])
+                              'pero', 'del', 'mas', 'más', 'eso', 'este', 'como', 'así', 'todo', 'https','Multimedia','omitida',
+                              'y', 'mi', 'o', 'q', 'yo', 'al', 'voy', 'null', 'pues','porque','editó'])
 
-mask = np.array(Image.open('Resources/heart.jpg'))
+mask = np.array(Image.open('heart.jpg'))
 
 # Obtener y acumular todas las palabras de cada mensaje
 for mensaje in mensajes_df['Mensaje'].values:
