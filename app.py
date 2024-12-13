@@ -14,6 +14,7 @@ from wordcloud import WordCloud, STOPWORDS
 
 import streamlit as st
 
+from datetime import datetime, date
 ###################################
 ###################################
 # Título de la aplicación
@@ -22,6 +23,15 @@ st.write('Creado por [Yoseth](https://drive.google.com/file/d/1aKo1TG4AbKO7YBRsj
 st.write('Valeria, eres una persona increíblemente fuerte y perseverante. Cuidadosa con tu familia, llena de empatía por los demás y con un corazón que ama de una manera única. Eres mi mayor fuente de inspiración y no hay palabras suficientes para expresar cuánto te adoro. Te amo profundamente y quiero estar a tu lado, tomando tu mano en cada logro y cada paso que des en esta vida.')
 ###################################
 ###################################
+
+fecha_inicial = date(2024, 11, 1)
+# Obtener la fecha actual
+fecha_actual = datetime.now().date()
+# Calcular la diferencia en días
+dias_transcurridos = (fecha_actual - fecha_inicial).days
+
+# Mostrar los resultados
+st.write(f"Felices **{dias_transcurridos} días** desde el 1 de noviembre de 2024. Te amo mucho Valeria 💗💗💗")
 
 ##########################################
 # ### Paso 1: Definir funciones necesarias
