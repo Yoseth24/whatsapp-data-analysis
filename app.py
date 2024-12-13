@@ -36,10 +36,9 @@ def IniciaConFechaYHora(s):
     return False
 
 # Patrón para encontrar a los miembros del grupo dentro del txt
-def EncontrarMiembro(s):
-    patrones = ['Arciniegas B. Yoseth:','Valeria 💗:']
 
-    patron = '^' + '|'.join(patrones)
+def EncontrarMiembro(s):
+    patron= r"Yoseth 🐣:|Valeria 💗:"
     resultado = re.match(patron, s)  # Verificar si cada línea del txt hace match con el patrón de miembro
     if resultado:
         return True
@@ -69,6 +68,15 @@ def ObtenerPartes(linea):
 
 # Leer el archivo txt descargado del chat de WhatsApp
 RutaChat = 'Chat de WhatsApp con Valeria 💗.txt'
+
+# Leer el archivo
+with open(RutaChat, "r") as archivo:
+    contenido = archivo.read()
+
+# 1era limpieza del contendio
+contenido=contenido.replace("\u202f"," ").replace("a. m.","AM").replace("p. m.", "PM").replace("Arciniegas B. Yoseth:","Yoseth 🐣:")
+contenido_limpio=contenido.replace("\n"," ")
+
 
 # Lista para almacenar los datos (Fecha, Hora, Miembro, Mensaje) de cada línea del txt
 DatosLista = []
